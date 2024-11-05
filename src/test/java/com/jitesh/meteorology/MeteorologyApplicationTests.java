@@ -40,6 +40,15 @@ class MeteorologyApplicationTests {
 
         Long id = 112L;
         String pincode = "495677";
+        String main = "Clear";
+        String description = "clear sky";
+        Double pressure = 1014.2;
+        Double feelsLike = 28.21;
+        Integer visibility = 10000;
+        Double windSpeed = 0.6;
+        Double windDirectionInDeg = 162.0;
+        Double expectedTemp = 29.09;
+        Double expectedHumid = 39.0;
         Pincode mockPincode = new Pincode(id, pincode, 18.5204, 73.8567);
         LocalDate date = LocalDate.of(2024, 11, 05);
 
@@ -49,14 +58,14 @@ class MeteorologyApplicationTests {
         Mockito.when(pincodeRepository.findByPincode(eq(pincode)))
                 .thenReturn(Optional.of(mockPincode));
 
-        Weather mockWeather = new Weather(id, mockPincode, date, 34.5, 50.0);
+        Weather mockWeather = new Weather(id, mockPincode, date, main, description, expectedTemp, expectedHumid, pressure, feelsLike, visibility, windSpeed, windDirectionInDeg);
         Mockito.when(weatherRepository.save(any(Weather.class)))
                 .thenReturn(mockWeather);
 
         Weather response = weatherService.getWeather(pincode, date);
 
-        assertEquals("Verify Temp : ", 34.5, response.getTemperature());
-        assertEquals("Verify Humid : ", 50.0, response.getHumidity());
+        assertEquals("Verify Temp : ", expectedTemp, response.getTemperature());
+        assertEquals("Verify Humid : ", expectedHumid, response.getHumidity());
         Mockito.verify(weatherRepository, Mockito.times(1)).findByPincodeAndDate(eq(mockPincode), eq(date));
         Mockito.verify(pincodeRepository, Mockito.times(1)).findByPincode(eq(pincode));
         Mockito.verify(weatherRepository, Mockito.times(1)).save(any(Weather.class));
