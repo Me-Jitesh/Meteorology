@@ -2,6 +2,7 @@ package com.jitesh.meteorology.entities;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -21,6 +22,13 @@ public class Weather {
     private Pincode pincode;
 
     private LocalDate date;
+    private String main;
+    private String description;
     private Double temperature;
     private Double humidity;
+    private Double pressure;
+    private Double feelsLike;
+    private Integer visibility;
+    private Double windSpeed;
+    private Double windDirectionInDeg;
 }

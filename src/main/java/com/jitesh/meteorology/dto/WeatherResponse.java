@@ -9,6 +9,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class WeatherResponse {
     private Main main;
+    private Weather[] weather;
+    private Wind wind;
+    private Integer visibility;
 
     @Data
     @AllArgsConstructor
@@ -16,5 +19,24 @@ public class WeatherResponse {
     public static class Main {
         private Double temp;
         private Double humidity;
+        private Double pressure;
+        private Double feels_like;
     }
+
+    @Data
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class Weather {
+        private String main;
+        private String description;
+    }
+
+    @Data
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class Wind {
+        private Double speed;
+        private Double deg;
+    }
+
 }

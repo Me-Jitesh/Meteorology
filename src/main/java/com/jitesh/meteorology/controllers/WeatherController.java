@@ -29,7 +29,7 @@ public class WeatherController {
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
 
         Weather weather = weatherService.getWeather(pincode, date);
-        System.out.println(weather);
+        System.out.println("Client Response : " + weather);
         return ResponseEntity.ok(weather);
     }
 }

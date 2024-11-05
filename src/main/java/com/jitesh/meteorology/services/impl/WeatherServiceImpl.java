@@ -31,11 +31,28 @@ public class WeatherServiceImpl implements WeatherService {
     @Value("${openweather.api.weather.url}")
     private String WEATHER_URL;
 
+    private static Weather getWeather(Pincode pincode, LocalDate date, WeatherResponse apiRes) {
+        Weather weather = new Weather();
+        weather.setPincode(pincode);
+        weather.setDate(date);
+        weather.setMain(apiRes.getWeather()[0].getMain());
+        weather.setDescription(apiRes.getWeather()[0].getDescription());
+        weather.setTemperature(apiRes.getMain().getTemp());
+        weather.setHumidity(apiRes.getMain().getHumidity());
+        weather.setPressure(apiRes.getMain().getPressure());
+        weather.setFeelsLike(apiRes.getMain().getFeels_like());
+        weather.setVisibility(apiRes.getVisibility());
+        weather.setWindSpeed(apiRes.getWind().getSpeed());
+        weather.setWindDirectionInDeg(apiRes.getWind().getDeg());
+        return weather;
+    }
+
     @Override
     public Weather getWeather(String pincode, LocalDate date) {
+        // Optimize API Call
         Pincode pincodeEntity = pincodeRepository.findByPincode(pincode)
                 .orElseGet(() -> fetchAndSavePincodeDetails(pincode));
-
+        // Optimize API Call
         return weatherRepository.findByPincodeAndDate(pincodeEntity, date)
                 .orElseGet(() -> fetchAndSaveWeatherDetails(pincodeEntity, date));
     }
@@ -43,7 +60,7 @@ public class WeatherServiceImpl implements WeatherService {
     private Pincode fetchAndSavePincodeDetails(String pincode) {
         String geocodeUrl = String.format(GEOCODE_URL, pincode, API_KEY);
         GeocodeResponse geocodeResponse = restTemplate.getForObject(geocodeUrl, GeocodeResponse.class);
-
+        System.out.println("API Call Response : " + geocodeResponse);
         if (geocodeResponse == null || geocodeResponse.getLat() == null || geocodeResponse.getLon() == null) {
             throw new RuntimeException("Invalid response from geocoding API for pincode: " + pincode);
         }
@@ -57,19 +74,15 @@ public class WeatherServiceImpl implements WeatherService {
 
     private Weather fetchAndSaveWeatherDetails(Pincode pincode, LocalDate date) {
         String weatherUrl = String.format(WEATHER_URL, pincode.getLatitude(), pincode.getLongitude(), API_KEY);
-        WeatherResponse weatherResponse = restTemplate.getForObject(weatherUrl, WeatherResponse.class);
+        WeatherResponse apiRes = restTemplate.getForObject(weatherUrl, WeatherResponse.class);
 
-        System.out.println(weatherResponse);
+        System.out.println("API Call Response : " + apiRes);
 
-        if (weatherResponse == null) {
+        if (apiRes == null) {
             throw new RuntimeException("Invalid response from weather API for pincode : " + pincode.getPincode());
         }
 
-        Weather weather = new Weather();
-        weather.setPincode(pincode);
-        weather.setDate(date);
-        weather.setTemperature(weatherResponse.getMain().getTemp());
-        weather.setHumidity(weatherResponse.getMain().getHumidity());
+        Weather weather = getWeather(pincode, date, apiRes);
         return weatherRepository.save(weather);
     }
 }
